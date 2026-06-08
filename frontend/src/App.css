@@ -234,6 +234,38 @@
 .pill-btn { background: var(--surface); border-radius: 999px; }
 .pill-btn.round { width: 40px; justify-content: center; padding: 0; }
 .pill-btn.danger:hover { background: rgba(240,85,107,0.16); color: var(--danger); }
+.action.pill-btn.on { color: var(--accent-strong); background: rgba(43, 179, 214, 0.14); }
+
+/* ---- Share popover ---- */
+.share-wrap { position: relative; }
+.share-pop {
+  position: absolute; top: calc(100% + 10px); right: 0; z-index: 40;
+  width: 340px; max-width: 80vw; padding: 16px;
+  background: var(--bg-elev); border: 1px solid var(--border);
+  border-radius: 14px; box-shadow: var(--shadow);
+}
+.share-pop-title { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 10px; }
+.share-pop-row { display: flex; gap: 8px; }
+.share-pop-row input {
+  flex: 1; min-width: 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0 12px; height: 40px; color: var(--text); font-size: 13px; outline: none;
+}
+.share-pop-row .btn { height: 40px; flex: none; }
+
+/* ---- Removable cards (watch-later) ---- */
+.count-badge {
+  display: inline-grid; place-items: center; min-width: 24px; height: 22px; padding: 0 7px;
+  margin-left: 8px; background: var(--surface); color: var(--text-muted);
+  border-radius: 999px; font-size: 13px; font-weight: 600; vertical-align: middle;
+}
+.removable { position: relative; }
+.remove-btn {
+  position: absolute; top: 8px; right: 8px; z-index: 5;
+  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(4, 14, 24, 0.78); color: #fff; opacity: 0; transition: opacity 0.15s, background 0.15s;
+}
+.removable:hover .remove-btn { opacity: 1; }
+.remove-btn:hover { background: var(--danger); }
 
 .watch-desc {
   margin: 16px 0; padding: 14px 16px; background: var(--surface); border-radius: var(--radius);

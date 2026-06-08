@@ -3,6 +3,8 @@ package tv.pyrite.dto;
 import org.springframework.stereotype.Component;
 import tv.pyrite.comment.Comment;
 import tv.pyrite.comment.CommentRepository;
+import tv.pyrite.library.ListKind;
+import tv.pyrite.library.VideoListEntryRepository;
 import tv.pyrite.user.User;
 import tv.pyrite.video.Video;
 import tv.pyrite.video.VideoRepository;
@@ -12,10 +14,13 @@ public class Mapper {
 
     private final VideoRepository videoRepository;
     private final CommentRepository commentRepository;
+    private final VideoListEntryRepository listRepository;
 
-    public Mapper(VideoRepository videoRepository, CommentRepository commentRepository) {
+    public Mapper(VideoRepository videoRepository, CommentRepository commentRepository,
+                  VideoListEntryRepository listRepository) {
         this.videoRepository = videoRepository;
         this.commentRepository = commentRepository;
+        this.listRepository = listRepository;
     }
 
     private String mediaUrl(String filename) {
@@ -39,10 +44,15 @@ public class Mapper {
 
     public Dtos.VideoDetailDto videoDetail(Video v, Long currentUserId) {
         boolean likedByMe = currentUserId != null && v.getLikedBy().contains(currentUserId);
+        boolean savedByMe = currentUserId != null
+                && listRepository.existsByUserIdAndVideoIdAndKind(currentUserId, v.getId(), ListKind.SAVED);
+        boolean watchLaterByMe = currentUserId != null
+                && listRepository.existsByUserIdAndVideoIdAndKind(currentUserId, v.getId(), ListKind.WATCH_LATER);
         long commentCount = commentRepository.countByVideoId(v.getId());
         return new Dtos.VideoDetailDto(
                 v.getId(), v.getTitle(), v.getDescription(), v.getHashtags(), v.getCategory(),
                 v.getDurationSeconds(), v.getViews(), v.getLikedBy().size(), likedByMe,
+                savedByMe, watchLaterByMe,
                 v.isFeatured(), mediaUrl(v.getVideoFile()), mediaUrl(v.getThumbnailFile()),
                 commentCount, user(v.getUploader()), v.getCreatedAt());
     }

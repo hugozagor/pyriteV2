@@ -67,6 +67,8 @@ public final class Dtos {
             long views,
             long likes,
             boolean likedByMe,
+            boolean savedByMe,
+            boolean watchLaterByMe,
             boolean featured,
             String videoUrl,
             String thumbnailUrl,

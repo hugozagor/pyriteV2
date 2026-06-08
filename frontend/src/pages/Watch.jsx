@@ -4,7 +4,7 @@ import { api } from '../api'
 import { useAuth } from '../auth'
 import Avatar from '../components/Avatar'
 import Thumbnail from '../components/Thumbnail'
-import { ThumbUp, ThumbDown, Share, Bookmark, More, Verified, Shield, Sort, Trash, Pencil } from '../components/icons'
+import { ThumbUp, ThumbDown, Share, Bookmark, BookmarkFill, Clock, Check, LinkIco, Verified, Shield, Sort, Trash, Pencil } from '../components/icons'
 import { formatViews, formatCount, timeAgo } from '../format'
 
 export default function Watch() {
@@ -18,17 +18,58 @@ export default function Watch() {
   const [draft, setDraft] = useState('')
   const [autoplay, setAutoplay] = useState(true)
   const [error, setError] = useState('')
+  const [shareOpen, setShareOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
   const viewed = useRef(false)
+  const shareRef = useRef(null)
 
   useEffect(() => {
     viewed.current = false
     setError('')
     setVideo(null)
+    setShareOpen(false)
     api.video(id).then(setVideo).catch((e) => setError(e.message))
     api.comments(id).then(setComments).catch(() => {})
     api.feed().then((feed) => setRelated((feed.videos || []).filter((v) => String(v.id) !== String(id)))).catch(() => {})
     window.scrollTo(0, 0)
   }, [id])
+
+  useEffect(() => {
+    const close = (e) => { if (shareRef.current && !shareRef.current.contains(e.target)) setShareOpen(false) }
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [])
+
+  const shareUrl = `${window.location.origin}/watch/${id}`
+
+  const toggleLibrary = (kind, flag) => async () => {
+    const active = video[flag]
+    // optimistic flip
+    setVideo((v) => v && { ...v, [flag]: !active })
+    try {
+      if (active) await api.removeFromLibrary(kind, id)
+      else await api.addToLibrary(kind, id)
+    } catch (e) {
+      setVideo((v) => v && { ...v, [flag]: active }) // revert on failure
+      setError(e.message)
+    }
+  }
+  const toggleSaved = () => toggleLibrary('saved', 'savedByMe')()
+  const toggleWatchLater = () => toggleLibrary('watch-later', 'watchLaterByMe')()
+
+  const onShareClick = async () => {
+    if (navigator.share) {
+      try { await navigator.share({ title: video.title, url: shareUrl }); return } catch { /* cancelled */ }
+    }
+    setShareOpen((o) => !o)
+  }
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
+    } catch { /* clipboard blocked */ }
+  }
 
   const onPlay = () => {
     if (viewed.current) return
@@ -110,15 +151,32 @@ export default function Watch() {
               <span className="action-sep" />
               <button className="action" onClick={toggleLike}><ThumbDown size={20} /></button>
             </div>
-            <button className="action pill-btn"><Share size={19} /> Partager</button>
-            <button className="action pill-btn"><Bookmark size={19} /> Enregistrer</button>
+            <div className="share-wrap" ref={shareRef}>
+              <button className="action pill-btn" onClick={onShareClick}><Share size={19} /> Partager</button>
+              {shareOpen && (
+                <div className="share-pop">
+                  <span className="share-pop-title">Partager cette vidéo</span>
+                  <div className="share-pop-row">
+                    <input readOnly value={shareUrl} onFocus={(e) => e.target.select()} />
+                    <button className="btn btn-accent" onClick={copyLink}>
+                      {copied ? <><Check size={16} /> Copié</> : <><LinkIco size={16} /> Copier</>}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+            <button className={`action pill-btn ${video.savedByMe ? 'on' : ''}`} onClick={toggleSaved}>
+              {video.savedByMe ? <BookmarkFill size={19} /> : <Bookmark size={19} />} {video.savedByMe ? 'Enregistré' : 'Enregistrer'}
+            </button>
+            <button className={`action pill-btn ${video.watchLaterByMe ? 'on' : ''}`} onClick={toggleWatchLater}>
+              {video.watchLaterByMe ? <Check size={19} /> : <Clock size={19} />} {video.watchLaterByMe ? 'Ajoutée' : 'À regarder'}
+            </button>
             {isAdmin && (
               <Link to={`/edit/${id}`} className="action pill-btn"><Pencil size={18} /> Modifier</Link>
             )}
             {isAdmin && (
               <button className="action pill-btn danger" onClick={removeVideo}><Trash size={18} /></button>
             )}
-            <button className="action pill-btn round"><More size={20} /></button>
           </div>
         </div>
 

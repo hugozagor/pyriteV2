@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import tv.pyrite.comment.CommentRepository;
+import tv.pyrite.library.VideoListEntryRepository;
 import tv.pyrite.dto.Dtos;
 import tv.pyrite.dto.Mapper;
 import tv.pyrite.security.CurrentUser;
@@ -22,14 +23,17 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final VideoListEntryRepository listRepository;
     private final PasswordEncoder passwordEncoder;
     private final Mapper mapper;
     private final CurrentUser currentUser;
 
     public UserController(UserRepository userRepository, CommentRepository commentRepository,
-                          PasswordEncoder passwordEncoder, Mapper mapper, CurrentUser currentUser) {
+                          VideoListEntryRepository listRepository, PasswordEncoder passwordEncoder,
+                          Mapper mapper, CurrentUser currentUser) {
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
+        this.listRepository = listRepository;
         this.passwordEncoder = passwordEncoder;
         this.mapper = mapper;
         this.currentUser = currentUser;
@@ -102,6 +106,7 @@ public class UserController {
             throw new ResponseStatusException(BAD_REQUEST, "Impossible de supprimer le dernier administrateur");
         }
         commentRepository.deleteByAuthorId(target.getId());
+        listRepository.deleteByUserId(target.getId());
         userRepository.delete(target);
         return ResponseEntity.noContent().build();
     }

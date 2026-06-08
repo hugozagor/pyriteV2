@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 import tv.pyrite.comment.CommentRepository;
 import tv.pyrite.dto.Dtos;
 import tv.pyrite.dto.Mapper;
+import tv.pyrite.library.VideoListEntryRepository;
 import tv.pyrite.security.CurrentUser;
 import tv.pyrite.storage.StorageService;
 import tv.pyrite.user.User;
@@ -24,14 +25,17 @@ public class VideoController {
 
     private final VideoRepository videoRepository;
     private final CommentRepository commentRepository;
+    private final VideoListEntryRepository listRepository;
     private final StorageService storageService;
     private final Mapper mapper;
     private final CurrentUser currentUser;
 
     public VideoController(VideoRepository videoRepository, CommentRepository commentRepository,
-                           StorageService storageService, Mapper mapper, CurrentUser currentUser) {
+                           VideoListEntryRepository listRepository, StorageService storageService,
+                           Mapper mapper, CurrentUser currentUser) {
         this.videoRepository = videoRepository;
         this.commentRepository = commentRepository;
+        this.listRepository = listRepository;
         this.storageService = storageService;
         this.mapper = mapper;
         this.currentUser = currentUser;
@@ -216,6 +220,7 @@ public class VideoController {
         Video v = videoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Vidéo introuvable"));
         commentRepository.deleteByVideoId(v.getId());
+        listRepository.deleteByVideoId(v.getId());
         String videoFile = v.getVideoFile();
         String thumbFile = v.getThumbnailFile();
         videoRepository.delete(v);

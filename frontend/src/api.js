@@ -62,6 +62,11 @@ export const api = {
   deleteComment: (videoId, commentId) =>
     request(`/videos/${videoId}/comments/${commentId}`, { method: 'DELETE' }),
 
+  // library (watch-later / saved) — kind: 'watch-later' | 'saved'
+  library: (kind) => request(`/library/${kind}`),
+  addToLibrary: (kind, videoId) => request(`/library/${kind}/${videoId}`, { method: 'POST' }),
+  removeFromLibrary: (kind, videoId) => request(`/library/${kind}/${videoId}`, { method: 'DELETE' }),
+
   // users
   user: (id) => request(`/users/${id}`),
   users: () => request('/users'),

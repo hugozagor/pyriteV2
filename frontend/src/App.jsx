@@ -9,6 +9,7 @@ import Upload from './pages/Upload'
 import EditVideo from './pages/EditVideo'
 import UsersAdmin from './pages/UsersAdmin'
 import Settings from './pages/Settings'
+import WatchLater from './pages/WatchLater'
 import ComingSoon from './pages/ComingSoon'
 
 function Protected({ children, adminOnly = false }) {
@@ -39,7 +40,7 @@ export default function App() {
       <Route path="/settings" element={<Shell><Settings /></Shell>} />
       <Route path="/live" element={<Shell><ComingSoon title="En direct" subtitle="Les diffusions en direct arrivent bientôt sur Pyrite." /></Shell>} />
       <Route path="/history" element={<Shell><ComingSoon title="Historique" subtitle="Votre historique de visionnage apparaîtra ici." /></Shell>} />
-      <Route path="/watch-later" element={<Shell><ComingSoon title="À regarder" subtitle="Mettez des vidéos de côté pour plus tard." /></Shell>} />
+      <Route path="/watch-later" element={<Shell><WatchLater /></Shell>} />
       <Route path="/liked" element={<Shell><ComingSoon title="Vidéos aimées" subtitle="Retrouvez ici les vidéos que vous avez aimées." /></Shell>} />
       <Route path="/playlists" element={<Shell><ComingSoon title="Playlists" subtitle="Organisez vos vidéos en playlists." /></Shell>} />
       <Route path="/downloads" element={<Shell><ComingSoon title="Téléchargements" subtitle="Vos téléchargements hors-ligne s'afficheront ici." /></Shell>} />
