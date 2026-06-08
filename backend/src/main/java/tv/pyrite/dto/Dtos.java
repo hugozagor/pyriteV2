@@ -69,6 +69,7 @@ public final class Dtos {
             boolean likedByMe,
             boolean savedByMe,
             boolean watchLaterByMe,
+            boolean inPlaylist,
             boolean featured,
             String videoUrl,
             String thumbnailUrl,
@@ -96,4 +97,26 @@ public final class Dtos {
     public record FeedDto(
             VideoDetailDto featured,
             List<VideoSummaryDto> videos) {}
+
+    // ---- Playlists ----
+    public record PlaylistDto(
+            Long id,
+            String name,
+            long videoCount,
+            String coverUrl,
+            Boolean containsVideo,
+            Instant createdAt) {}
+
+    public record PlaylistDetailDto(
+            Long id,
+            String name,
+            long videoCount,
+            List<VideoSummaryDto> videos,
+            Instant createdAt) {}
+
+    public record CreatePlaylistRequest(
+            @NotBlank @Size(max = 120) String name,
+            Long videoId) {}
+
+    public record UpdatePlaylistRequest(@NotBlank @Size(max = 120) String name) {}
 }

@@ -67,6 +67,15 @@ export const api = {
   addToLibrary: (kind, videoId) => request(`/library/${kind}/${videoId}`, { method: 'POST' }),
   removeFromLibrary: (kind, videoId) => request(`/library/${kind}/${videoId}`, { method: 'DELETE' }),
 
+  // playlists
+  playlists: (videoId) => request(`/playlists${videoId ? `?videoId=${videoId}` : ''}`),
+  playlist: (id) => request(`/playlists/${id}`),
+  createPlaylist: (name, videoId) => request('/playlists', { method: 'POST', body: { name, videoId } }),
+  renamePlaylist: (id, name) => request(`/playlists/${id}`, { method: 'PATCH', body: { name } }),
+  deletePlaylist: (id) => request(`/playlists/${id}`, { method: 'DELETE' }),
+  addToPlaylist: (id, videoId) => request(`/playlists/${id}/videos/${videoId}`, { method: 'POST' }),
+  removeFromPlaylist: (id, videoId) => request(`/playlists/${id}/videos/${videoId}`, { method: 'DELETE' }),
+
   // users
   user: (id) => request(`/users/${id}`),
   users: () => request('/users'),

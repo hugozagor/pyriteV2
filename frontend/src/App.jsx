@@ -10,6 +10,8 @@ import EditVideo from './pages/EditVideo'
 import UsersAdmin from './pages/UsersAdmin'
 import Settings from './pages/Settings'
 import WatchLater from './pages/WatchLater'
+import Playlists from './pages/Playlists'
+import PlaylistDetail from './pages/PlaylistDetail'
 import ComingSoon from './pages/ComingSoon'
 
 function Protected({ children, adminOnly = false }) {
@@ -42,7 +44,8 @@ export default function App() {
       <Route path="/history" element={<Shell><ComingSoon title="Historique" subtitle="Votre historique de visionnage apparaîtra ici." /></Shell>} />
       <Route path="/watch-later" element={<Shell><WatchLater /></Shell>} />
       <Route path="/liked" element={<Shell><ComingSoon title="Vidéos aimées" subtitle="Retrouvez ici les vidéos que vous avez aimées." /></Shell>} />
-      <Route path="/playlists" element={<Shell><ComingSoon title="Playlists" subtitle="Organisez vos vidéos en playlists." /></Shell>} />
+      <Route path="/playlists" element={<Shell><Playlists /></Shell>} />
+      <Route path="/playlist/:id" element={<Shell><PlaylistDetail /></Shell>} />
       <Route path="/downloads" element={<Shell><ComingSoon title="Téléchargements" subtitle="Vos téléchargements hors-ligne s'afficheront ici." /></Shell>} />
 
       <Route path="/upload" element={<Protected adminOnly><Layout><Upload /></Layout></Protected>} />

@@ -4,7 +4,8 @@ import { api } from '../api'
 import { useAuth } from '../auth'
 import Avatar from '../components/Avatar'
 import Thumbnail from '../components/Thumbnail'
-import { ThumbUp, ThumbDown, Share, Bookmark, BookmarkFill, Clock, Check, LinkIco, Verified, Shield, Sort, Trash, Pencil } from '../components/icons'
+import SaveToPlaylist from '../components/SaveToPlaylist'
+import { ThumbUp, ThumbDown, Share, Clock, Check, LinkIco, Verified, Shield, Sort, Trash, Pencil } from '../components/icons'
 import { formatViews, formatCount, timeAgo } from '../format'
 
 export default function Watch() {
@@ -54,7 +55,6 @@ export default function Watch() {
       setError(e.message)
     }
   }
-  const toggleSaved = () => toggleLibrary('saved', 'savedByMe')()
   const toggleWatchLater = () => toggleLibrary('watch-later', 'watchLaterByMe')()
 
   const onShareClick = async () => {
@@ -165,9 +165,11 @@ export default function Watch() {
                 </div>
               )}
             </div>
-            <button className={`action pill-btn ${video.savedByMe ? 'on' : ''}`} onClick={toggleSaved}>
-              {video.savedByMe ? <BookmarkFill size={19} /> : <Bookmark size={19} />} {video.savedByMe ? 'Enregistré' : 'Enregistrer'}
-            </button>
+            <SaveToPlaylist
+              videoId={id}
+              inPlaylist={video.inPlaylist}
+              onInPlaylistChange={(val) => setVideo((v) => v && { ...v, inPlaylist: val })}
+            />
             <button className={`action pill-btn ${video.watchLaterByMe ? 'on' : ''}`} onClick={toggleWatchLater}>
               {video.watchLaterByMe ? <Check size={19} /> : <Clock size={19} />} {video.watchLaterByMe ? 'Ajoutée' : 'À regarder'}
             </button>

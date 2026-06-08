@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import tv.pyrite.comment.CommentRepository;
 import tv.pyrite.library.VideoListEntryRepository;
+import tv.pyrite.playlist.PlaylistItemRepository;
+import tv.pyrite.playlist.PlaylistRepository;
 import tv.pyrite.dto.Dtos;
 import tv.pyrite.dto.Mapper;
 import tv.pyrite.security.CurrentUser;
@@ -24,16 +26,21 @@ public class UserController {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final VideoListEntryRepository listRepository;
+    private final PlaylistItemRepository playlistItemRepository;
+    private final PlaylistRepository playlistRepository;
     private final PasswordEncoder passwordEncoder;
     private final Mapper mapper;
     private final CurrentUser currentUser;
 
     public UserController(UserRepository userRepository, CommentRepository commentRepository,
-                          VideoListEntryRepository listRepository, PasswordEncoder passwordEncoder,
+                          VideoListEntryRepository listRepository, PlaylistItemRepository playlistItemRepository,
+                          PlaylistRepository playlistRepository, PasswordEncoder passwordEncoder,
                           Mapper mapper, CurrentUser currentUser) {
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
         this.listRepository = listRepository;
+        this.playlistItemRepository = playlistItemRepository;
+        this.playlistRepository = playlistRepository;
         this.passwordEncoder = passwordEncoder;
         this.mapper = mapper;
         this.currentUser = currentUser;
@@ -107,6 +114,8 @@ public class UserController {
         }
         commentRepository.deleteByAuthorId(target.getId());
         listRepository.deleteByUserId(target.getId());
+        playlistItemRepository.deleteByPlaylistOwnerId(target.getId());
+        playlistRepository.deleteByOwnerId(target.getId());
         userRepository.delete(target);
         return ResponseEntity.noContent().build();
     }

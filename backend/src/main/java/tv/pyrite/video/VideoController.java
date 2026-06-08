@@ -11,6 +11,7 @@ import tv.pyrite.comment.CommentRepository;
 import tv.pyrite.dto.Dtos;
 import tv.pyrite.dto.Mapper;
 import tv.pyrite.library.VideoListEntryRepository;
+import tv.pyrite.playlist.PlaylistItemRepository;
 import tv.pyrite.security.CurrentUser;
 import tv.pyrite.storage.StorageService;
 import tv.pyrite.user.User;
@@ -26,16 +27,18 @@ public class VideoController {
     private final VideoRepository videoRepository;
     private final CommentRepository commentRepository;
     private final VideoListEntryRepository listRepository;
+    private final PlaylistItemRepository playlistItemRepository;
     private final StorageService storageService;
     private final Mapper mapper;
     private final CurrentUser currentUser;
 
     public VideoController(VideoRepository videoRepository, CommentRepository commentRepository,
-                           VideoListEntryRepository listRepository, StorageService storageService,
-                           Mapper mapper, CurrentUser currentUser) {
+                           VideoListEntryRepository listRepository, PlaylistItemRepository playlistItemRepository,
+                           StorageService storageService, Mapper mapper, CurrentUser currentUser) {
         this.videoRepository = videoRepository;
         this.commentRepository = commentRepository;
         this.listRepository = listRepository;
+        this.playlistItemRepository = playlistItemRepository;
         this.storageService = storageService;
         this.mapper = mapper;
         this.currentUser = currentUser;
@@ -221,6 +224,7 @@ public class VideoController {
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Vidéo introuvable"));
         commentRepository.deleteByVideoId(v.getId());
         listRepository.deleteByVideoId(v.getId());
+        playlistItemRepository.deleteByVideoId(v.getId());
         String videoFile = v.getVideoFile();
         String thumbFile = v.getThumbnailFile();
         videoRepository.delete(v);
