@@ -46,3 +46,4 @@ export const Mail = (p) => (<svg {...s(p)} {...p}><rect x="3" y="5" width="18" h
 export const Lock = (p) => (<svg {...s(p)} {...p}><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>)
 export const Sort = (p) => (<svg {...s(p)} {...p}><line x1="4" y1="7" x2="20" y2="7"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="9" y1="17" x2="15" y2="17"/></svg>)
 export const Chevron = (p) => (<svg {...s(p)} {...p}><polyline points="6 9 12 15 18 9"/></svg>)
+export const Pencil = (p) => (<svg {...s(p)} {...p}><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>)

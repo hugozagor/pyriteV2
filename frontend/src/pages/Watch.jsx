@@ -4,7 +4,7 @@ import { api } from '../api'
 import { useAuth } from '../auth'
 import Avatar from '../components/Avatar'
 import Thumbnail from '../components/Thumbnail'
-import { ThumbUp, ThumbDown, Share, Bookmark, More, Verified, Shield, Sort, Trash } from '../components/icons'
+import { ThumbUp, ThumbDown, Share, Bookmark, More, Verified, Shield, Sort, Trash, Pencil } from '../components/icons'
 import { formatViews, formatCount, timeAgo } from '../format'
 
 export default function Watch() {
@@ -112,6 +112,9 @@ export default function Watch() {
             </div>
             <button className="action pill-btn"><Share size={19} /> Partager</button>
             <button className="action pill-btn"><Bookmark size={19} /> Enregistrer</button>
+            {isAdmin && (
+              <Link to={`/edit/${id}`} className="action pill-btn"><Pencil size={18} /> Modifier</Link>
+            )}
             {isAdmin && (
               <button className="action pill-btn danger" onClick={removeVideo}><Trash size={18} /></button>
             )}

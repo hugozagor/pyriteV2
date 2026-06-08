@@ -6,6 +6,7 @@ import Home from './pages/Home'
 import Watch from './pages/Watch'
 import Channel from './pages/Channel'
 import Upload from './pages/Upload'
+import EditVideo from './pages/EditVideo'
 import UsersAdmin from './pages/UsersAdmin'
 import Settings from './pages/Settings'
 import ComingSoon from './pages/ComingSoon'
@@ -44,6 +45,7 @@ export default function App() {
       <Route path="/downloads" element={<Shell><ComingSoon title="Téléchargements" subtitle="Vos téléchargements hors-ligne s'afficheront ici." /></Shell>} />
 
       <Route path="/upload" element={<Protected adminOnly><Layout><Upload /></Layout></Protected>} />
+      <Route path="/edit/:id" element={<Protected adminOnly><Layout><EditVideo /></Layout></Protected>} />
       <Route path="/admin/users" element={<Protected adminOnly><Layout><UsersAdmin /></Layout></Protected>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />

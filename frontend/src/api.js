@@ -52,6 +52,7 @@ export const api = {
   registerView: (id) => request(`/videos/${id}/view`, { method: 'POST' }),
   toggleLike: (id) => request(`/videos/${id}/like`, { method: 'POST' }),
   uploadVideo: (formData) => request('/videos', { method: 'POST', body: formData, isForm: true }),
+  editVideo: (id, formData) => request(`/videos/${id}`, { method: 'PUT', body: formData, isForm: true }),
   updateVideo: (id, body) => request(`/videos/${id}`, { method: 'PATCH', body }),
   deleteVideo: (id) => request(`/videos/${id}`, { method: 'DELETE' }),
 

@@ -140,6 +140,20 @@ public class VideoController {
         return ResponseEntity.status(CREATED).body(mapper.videoDetail(saved, admin.getId()));
     }
 
+    /** Ensures only one video carries the "featured" flag at a time. */
+    private void setFeaturedExclusive(Video v, boolean featured) {
+        if (featured) {
+            videoRepository.findByFeaturedTrueOrderByCreatedAtDesc().forEach(existing -> {
+                if (!existing.getId().equals(v.getId())) {
+                    existing.setFeatured(false);
+                    videoRepository.save(existing);
+                }
+            });
+        }
+        v.setFeatured(featured);
+    }
+
+    /** Lightweight JSON metadata patch (no file changes). */
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -150,17 +164,48 @@ public class VideoController {
         if (req.description() != null) v.setDescription(req.description());
         if (req.hashtags() != null) v.setHashtags(req.hashtags());
         if (req.category() != null) v.setCategory(req.category());
-        if (req.featured() != null) {
-            if (req.featured()) {
-                videoRepository.findByFeaturedTrueOrderByCreatedAtDesc().forEach(existing -> {
-                    if (!existing.getId().equals(v.getId())) {
-                        existing.setFeatured(false);
-                        videoRepository.save(existing);
-                    }
-                });
-            }
-            v.setFeatured(req.featured());
+        if (req.featured() != null) setFeaturedExclusive(v, req.featured());
+        return mapper.videoDetail(videoRepository.save(v), currentUserId());
+    }
+
+    /**
+     * Full edit (admin): metadata plus an optional new thumbnail. Any field left
+     * out is unchanged; passing removeThumbnail=true clears the current thumbnail.
+     */
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public Dtos.VideoDetailDto edit(
+            @PathVariable Long id,
+            @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "hashtags", required = false) String hashtags,
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "featured", required = false) Boolean featured,
+            @RequestParam(value = "removeThumbnail", required = false, defaultValue = "false") boolean removeThumbnail) {
+
+        Video v = videoRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Vidéo introuvable"));
+
+        if (title != null) {
+            if (title.isBlank()) throw new ResponseStatusException(BAD_REQUEST, "Le titre est obligatoire");
+            v.setTitle(title.trim());
         }
+        if (description != null) v.setDescription(description);
+        if (hashtags != null) v.setHashtags(hashtags);
+        if (category != null) v.setCategory(category);
+        if (featured != null) setFeaturedExclusive(v, featured);
+
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            String old = v.getThumbnailFile();
+            v.setThumbnailFile(storageService.store(thumbnail, "thumb"));
+            storageService.delete(old);
+        } else if (removeThumbnail && v.getThumbnailFile() != null) {
+            storageService.delete(v.getThumbnailFile());
+            v.setThumbnailFile(null);
+        }
+
         return mapper.videoDetail(videoRepository.save(v), currentUserId());
     }
 
@@ -171,7 +216,11 @@ public class VideoController {
         Video v = videoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Vidéo introuvable"));
         commentRepository.deleteByVideoId(v.getId());
+        String videoFile = v.getVideoFile();
+        String thumbFile = v.getThumbnailFile();
         videoRepository.delete(v);
+        storageService.delete(videoFile);
+        storageService.delete(thumbFile);
         return ResponseEntity.noContent().build();
     }
 }

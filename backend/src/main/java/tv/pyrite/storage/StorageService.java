@@ -65,4 +65,16 @@ public class StorageService {
     public boolean exists(String filename) {
         return filename != null && Files.exists(resolve(filename));
     }
+
+    /** Best-effort deletion of a stored file; ignored if missing. */
+    public void delete(String filename) {
+        if (filename == null || filename.isBlank()) {
+            return;
+        }
+        try {
+            Files.deleteIfExists(resolve(filename));
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to delete file", e);
+        }
+    }
 }
