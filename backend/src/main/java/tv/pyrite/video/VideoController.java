@@ -10,6 +10,8 @@ import org.springframework.web.server.ResponseStatusException;
 import tv.pyrite.comment.CommentRepository;
 import tv.pyrite.dto.Dtos;
 import tv.pyrite.dto.Mapper;
+import tv.pyrite.history.WatchHistoryEntry;
+import tv.pyrite.history.WatchHistoryRepository;
 import tv.pyrite.library.VideoListEntryRepository;
 import tv.pyrite.playlist.PlaylistItemRepository;
 import tv.pyrite.security.CurrentUser;
@@ -28,17 +30,20 @@ public class VideoController {
     private final CommentRepository commentRepository;
     private final VideoListEntryRepository listRepository;
     private final PlaylistItemRepository playlistItemRepository;
+    private final WatchHistoryRepository historyRepository;
     private final StorageService storageService;
     private final Mapper mapper;
     private final CurrentUser currentUser;
 
     public VideoController(VideoRepository videoRepository, CommentRepository commentRepository,
                            VideoListEntryRepository listRepository, PlaylistItemRepository playlistItemRepository,
-                           StorageService storageService, Mapper mapper, CurrentUser currentUser) {
+                           WatchHistoryRepository historyRepository, StorageService storageService,
+                           Mapper mapper, CurrentUser currentUser) {
         this.videoRepository = videoRepository;
         this.commentRepository = commentRepository;
         this.listRepository = listRepository;
         this.playlistItemRepository = playlistItemRepository;
+        this.historyRepository = historyRepository;
         this.storageService = storageService;
         this.mapper = mapper;
         this.currentUser = currentUser;
@@ -89,6 +94,14 @@ public class VideoController {
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Vidéo introuvable"));
         v.setViews(v.getViews() + 1);
         videoRepository.save(v);
+
+        // Record (or bump) this video in the current user's watch history.
+        currentUser.get().ifPresent(user -> {
+            WatchHistoryEntry entry = historyRepository.findByUserIdAndVideoId(user.getId(), v.getId())
+                    .orElseGet(() -> new WatchHistoryEntry(user, v));
+            entry.setWatchedAt(java.time.Instant.now());
+            historyRepository.save(entry);
+        });
         return ResponseEntity.accepted().build();
     }
 
@@ -225,6 +238,7 @@ public class VideoController {
         commentRepository.deleteByVideoId(v.getId());
         listRepository.deleteByVideoId(v.getId());
         playlistItemRepository.deleteByVideoId(v.getId());
+        historyRepository.deleteByVideoId(v.getId());
         String videoFile = v.getVideoFile();
         String thumbFile = v.getThumbnailFile();
         videoRepository.delete(v);

@@ -3,8 +3,8 @@ import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth'
 import Avatar from './Avatar'
 import {
-  Drop, Menu, Search, Arrow, Bell, Moon, Sun, Home, Compass, Live,
-  History, Clock, ThumbUp, Playlist, Download, Settings, Logout, Plus, Users, Shield,
+  Drop, Menu, Search, Arrow, Bell, Moon, Sun, Home, Compass,
+  History, Clock, ThumbUp, Playlist, Settings, Logout, Plus, Users, Shield,
 } from './icons'
 
 function useTheme() {
@@ -117,14 +117,12 @@ export default function Layout({ children }) {
         <nav className="side-nav">
           <SideLink to="/" icon={<Home size={20} />} label="Accueil" end />
           <SideLink to="/explore" icon={<Compass size={20} />} label="Explorer" />
-          <SideLink to="/live" icon={<Live size={20} />} label="En direct" />
 
           <div className="side-section">Votre espace</div>
           <SideLink to="/history" icon={<History size={20} />} label="Historique" />
           <SideLink to="/watch-later" icon={<Clock size={20} />} label="À regarder" />
           <SideLink to="/liked" icon={<ThumbUp size={20} />} label="Vidéos aimées" />
           <SideLink to="/playlists" icon={<Playlist size={20} />} label="Playlists" />
-          <SideLink to="/downloads" icon={<Download size={20} />} label="Téléchargements" />
 
           <div className="side-divider" />
           {isAdmin && <SideLink to="/admin/users" icon={<Shield size={20} />} label="Administration" />}

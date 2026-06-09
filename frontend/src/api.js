@@ -67,6 +67,11 @@ export const api = {
   addToLibrary: (kind, videoId) => request(`/library/${kind}/${videoId}`, { method: 'POST' }),
   removeFromLibrary: (kind, videoId) => request(`/library/${kind}/${videoId}`, { method: 'DELETE' }),
 
+  // history
+  history: () => request('/history'),
+  removeFromHistory: (videoId) => request(`/history/${videoId}`, { method: 'DELETE' }),
+  clearHistory: () => request('/history', { method: 'DELETE' }),
+
   // playlists
   playlists: (videoId) => request(`/playlists${videoId ? `?videoId=${videoId}` : ''}`),
   playlist: (id) => request(`/playlists/${id}`),

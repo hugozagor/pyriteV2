@@ -10,6 +10,7 @@ import EditVideo from './pages/EditVideo'
 import UsersAdmin from './pages/UsersAdmin'
 import Settings from './pages/Settings'
 import WatchLater from './pages/WatchLater'
+import History from './pages/History'
 import Playlists from './pages/Playlists'
 import PlaylistDetail from './pages/PlaylistDetail'
 import ComingSoon from './pages/ComingSoon'
@@ -40,13 +41,11 @@ export default function App() {
       <Route path="/watch/:id" element={<Shell><Watch /></Shell>} />
       <Route path="/channel/:id" element={<Shell><Channel /></Shell>} />
       <Route path="/settings" element={<Shell><Settings /></Shell>} />
-      <Route path="/live" element={<Shell><ComingSoon title="En direct" subtitle="Les diffusions en direct arrivent bientôt sur Pyrite." /></Shell>} />
-      <Route path="/history" element={<Shell><ComingSoon title="Historique" subtitle="Votre historique de visionnage apparaîtra ici." /></Shell>} />
+      <Route path="/history" element={<Shell><History /></Shell>} />
       <Route path="/watch-later" element={<Shell><WatchLater /></Shell>} />
       <Route path="/liked" element={<Shell><ComingSoon title="Vidéos aimées" subtitle="Retrouvez ici les vidéos que vous avez aimées." /></Shell>} />
       <Route path="/playlists" element={<Shell><Playlists /></Shell>} />
       <Route path="/playlist/:id" element={<Shell><PlaylistDetail /></Shell>} />
-      <Route path="/downloads" element={<Shell><ComingSoon title="Téléchargements" subtitle="Vos téléchargements hors-ligne s'afficheront ici." /></Shell>} />
 
       <Route path="/upload" element={<Protected adminOnly><Layout><Upload /></Layout></Protected>} />
       <Route path="/edit/:id" element={<Protected adminOnly><Layout><EditVideo /></Layout></Protected>} />

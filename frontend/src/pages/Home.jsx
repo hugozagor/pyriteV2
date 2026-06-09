@@ -7,7 +7,7 @@ import { Compass } from '../components/icons'
 const CATEGORIES = [
   'Tout', 'Pour vous', 'Musique', 'Lo-fi', 'Océan', 'Pluie', 'Méditation',
   'Nature', 'Plongée', 'Voile', 'Documentaires', 'Tech', 'Cuisine',
-  'En direct', 'Récemment mis en ligne',
+  'Récemment mis en ligne',
 ]
 
 export default function Home() {

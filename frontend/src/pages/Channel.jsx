@@ -8,7 +8,7 @@ import Thumbnail from '../components/Thumbnail'
 import { Verified, Shield, Share, Play, Chevron } from '../components/icons'
 import { formatViews, formatCount, timeAgo } from '../format'
 
-const TABS = ['Accueil', 'Vidéos', 'En direct', 'Playlists', 'À propos']
+const TABS = ['Accueil', 'Vidéos', 'Playlists', 'À propos']
 
 export default function Channel() {
   const { id } = useParams()
