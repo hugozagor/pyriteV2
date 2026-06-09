@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api'
+import { useI18n } from '../i18n'
 import VideoCard from '../components/VideoCard'
 import { Clock, Trash } from '../components/icons'
 
 export default function WatchLater() {
+  const { t } = useI18n()
   const [videos, setVideos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -25,7 +27,7 @@ export default function WatchLater() {
     <div className="page">
       <div className="feed-head">
         <Clock size={22} className="feed-head-ico" />
-        <h2>À regarder {videos.length > 0 && <span className="count-badge">{videos.length}</span>}</h2>
+        <h2>{t('wl.title')} {videos.length > 0 && <span className="count-badge">{videos.length}</span>}</h2>
       </div>
 
       {loading ? (
@@ -34,9 +36,9 @@ export default function WatchLater() {
         <div className="empty">{error}</div>
       ) : videos.length === 0 ? (
         <div className="empty">
-          <p>Votre liste « À regarder » est vide.</p>
-          <span>Ajoutez des vidéos via le bouton « À regarder » sous le lecteur.</span>
-          <Link to="/" className="btn btn-accent" style={{ marginTop: 14 }}>Parcourir les vidéos</Link>
+          <p>{t('wl.empty')}</p>
+          <span>{t('wl.emptyHint')}</span>
+          <Link to="/" className="btn btn-accent" style={{ marginTop: 14 }}>{t('common.browse')}</Link>
         </div>
       ) : (
         <div className="grid">
@@ -45,7 +47,7 @@ export default function WatchLater() {
               <VideoCard video={v} />
               <button
                 className="remove-btn"
-                title="Retirer de la liste"
+                title={t('wl.remove')}
                 onClick={(e) => { e.preventDefault(); remove(v.id) }}
               >
                 <Trash size={17} />

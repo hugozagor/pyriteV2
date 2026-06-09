@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api'
+import { useI18n } from '../i18n'
 import { Playlist as PlaylistIcon, Plus, Check } from '../components/icons'
 import { gradientFor } from '../format'
 
 export default function Playlists() {
+  const { t } = useI18n()
   const [playlists, setPlaylists] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -36,10 +38,10 @@ export default function Playlists() {
       <div className="feed-head between">
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <PlaylistIcon size={22} className="feed-head-ico" />
-          <h2>Playlists {playlists.length > 0 && <span className="count-badge">{playlists.length}</span>}</h2>
+          <h2>{t('playlists.title')} {playlists.length > 0 && <span className="count-badge">{playlists.length}</span>}</h2>
         </div>
         <button className="btn btn-accent" onClick={() => setCreating((c) => !c)}>
-          <Plus size={18} /> Créer une playlist
+          <Plus size={18} /> {t('playlists.create')}
         </button>
       </div>
 
@@ -49,13 +51,13 @@ export default function Playlists() {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Nom de la playlist (ex. Sessions d'apnée)"
+              placeholder={t('playlists.namePh')}
               autoFocus
               maxLength={120}
             />
           </div>
-          <button type="button" className="btn btn-ghost" onClick={() => { setCreating(false); setName('') }}>Annuler</button>
-          <button type="submit" className="btn btn-accent"><Check size={18} /> Créer</button>
+          <button type="button" className="btn btn-ghost" onClick={() => { setCreating(false); setName('') }}>{t('common.cancel')}</button>
+          <button type="submit" className="btn btn-accent"><Check size={18} /> {t('common.create')}</button>
         </form>
       )}
 
@@ -65,8 +67,8 @@ export default function Playlists() {
         <div className="grid">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="vcard skeleton-card" />)}</div>
       ) : playlists.length === 0 ? (
         <div className="empty">
-          <p>Aucune playlist pour le moment.</p>
-          <span>Créez-en une, puis enregistrez des vidéos dedans via le bouton « Enregistrer ».</span>
+          <p>{t('playlists.empty')}</p>
+          <span>{t('playlists.emptyHint')}</span>
         </div>
       ) : (
         <div className="grid pl-grid">
@@ -79,7 +81,7 @@ export default function Playlists() {
               </div>
               <div className="pl-meta">
                 <h3>{p.name}</h3>
-                <span>{p.videoCount} vidéo{p.videoCount > 1 ? 's' : ''}</span>
+                <span>{t(p.videoCount > 1 ? 'playlists.videos' : 'playlists.video', { count: p.videoCount })}</span>
               </div>
             </Link>
           ))}

@@ -128,6 +128,11 @@
   font-size: 14px; text-align: left;
 }
 .dropdown-item:hover { background: var(--surface-hover); }
+.dropdown-label { padding: 8px 12px 4px; font-size: 11.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-faint); }
+.lang-dropdown { width: 200px; }
+.lang-flag { font-size: 18px; line-height: 1; }
+.lang-btn { width: auto; gap: 5px; padding: 0 10px; border-radius: 999px; }
+.lang-code { font-size: 12.5px; font-weight: 700; letter-spacing: 0.03em; }
 
 /* ---- Sidebar ---- */
 .sidebar {
@@ -354,6 +359,7 @@
 }
 .watch-desc-meta { font-weight: 600; }
 .tag { color: var(--accent-strong); margin-right: 6px; }
+.lang-chip { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--surface-hover); color: var(--text-muted); font-size: 12.5px; font-weight: 600; vertical-align: middle; }
 .watch-desc-body { margin: 8px 0 0; color: var(--text); line-height: 1.55; white-space: pre-wrap;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .watch-desc.open .watch-desc-body { -webkit-line-clamp: unset; }

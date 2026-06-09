@@ -74,6 +74,7 @@ public final class Dtos {
             String description,
             String hashtags,
             String category,
+            String language,
             long durationSeconds,
             long views,
             long likes,

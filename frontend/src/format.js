@@ -1,21 +1,24 @@
-// French formatting helpers for views, durations and relative dates.
+// Locale-aware formatting for views, counts, durations and relative dates.
+// The active locale is set by the i18n provider via setLocale().
 
-export function formatViews(n) {
-  if (n == null) return '0 vue'
-  if (n < 1000) return `${n} vue${n > 1 ? 's' : ''}`
-  if (n < 1_000_000) return `${trim(n / 1000)} k vues`
-  return `${trim(n / 1_000_000)} M vues`
-}
+let locale = 'fr'
+const VIEWS_WORD = { fr: 'vues', en: 'views', es: 'visualizaciones', ru: 'просмотров' }
 
-function trim(x) {
-  return (Math.round(x * 10) / 10).toString().replace('.', ',')
+export function setLocale(l) {
+  locale = l || 'fr'
 }
 
 export function formatCount(n) {
   if (n == null) return '0'
-  if (n < 1000) return `${n}`
-  if (n < 1_000_000) return `${trim(n / 1000)} k`
-  return `${trim(n / 1_000_000)} M`
+  try {
+    return new Intl.NumberFormat(locale, { notation: 'compact', maximumFractionDigits: 1 }).format(n)
+  } catch {
+    return `${n}`
+  }
+}
+
+export function formatViews(n) {
+  return `${formatCount(n || 0)} ${VIEWS_WORD[locale] || VIEWS_WORD.fr}`
 }
 
 export function formatDuration(seconds) {
@@ -30,25 +33,17 @@ export function formatDuration(seconds) {
 
 export function timeAgo(iso) {
   if (!iso) return ''
-  const then = new Date(iso).getTime()
-  const diff = Math.max(0, Date.now() - then)
-  const sec = Math.floor(diff / 1000)
+  const diffSec = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
   const units = [
-    ['an', 31536000],
-    ['mois', 2592000],
-    ['semaine', 604800],
-    ['jour', 86400],
-    ['heure', 3600],
-    ['minute', 60],
+    ['year', 31536000], ['month', 2592000], ['week', 604800],
+    ['day', 86400], ['hour', 3600], ['minute', 60],
   ]
-  for (const [label, secs] of units) {
-    const v = Math.floor(sec / secs)
-    if (v >= 1) {
-      const plural = v > 1 && label !== 'mois' ? 's' : ''
-      return `il y a ${v} ${label}${plural}`
-    }
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
+  for (const [unit, secs] of units) {
+    const v = Math.floor(diffSec / secs)
+    if (v >= 1) return rtf.format(-v, unit)
   }
-  return "à l'instant"
+  return rtf.format(0, 'second')
 }
 
 // Deterministic gradient placeholder for videos that ship no thumbnail.

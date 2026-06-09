@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import { useNavigate, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth'
+import { useI18n } from '../i18n'
 import { Drop, Mail, Lock, Eye, Arrow } from '../components/icons'
+
+const ADMIN_NAME = 'Dioptase'
 
 export default function Login() {
   const { user, login } = useAuth()
+  const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
   const [loginId, setLoginId] = useState('')
@@ -24,11 +28,15 @@ export default function Login() {
       await login(loginId.trim(), password)
       navigate(location.state?.from?.pathname || '/', { replace: true })
     } catch (err) {
-      setError(err.message || 'Connexion impossible')
+      setError(err.message || t('login.error'))
     } finally {
       setBusy(false)
     }
   }
+
+  // Split the hero text around the {admin} marker to keep the bold name.
+  const heroParts = t('login.heroText').split('{admin}')
+  const noteParts = t('login.note').split('{admin}')
 
   return (
     <div className="login">
@@ -43,21 +51,18 @@ export default function Login() {
           <span className="brand-name lg">Pyrite</span>
         </div>
         <div className="login-tagline">
-          <h1>La<br />plateforme<br />vidéo, au<br />calme.</h1>
-          <p>
-            Un espace privé où l'administrateur <strong>Dioptase</strong> partage ses vidéos.
-            L'accès est réservé aux membres invités.
-          </p>
+          <h1>{t('login.tagline')}</h1>
+          <p>{heroParts[0]}<strong>{ADMIN_NAME}</strong>{heroParts[1]}</p>
         </div>
-        <div className="login-foot">© 2026 Pyrite · Accès sur invitation uniquement</div>
+        <div className="login-foot">{t('login.footer')}</div>
       </div>
 
       <div className="login-panel">
         <form className="login-form" onSubmit={submit}>
-          <h2>Connexion</h2>
-          <p className="login-sub">Identifiez-vous pour accéder à la plateforme.</p>
+          <h2>{t('login.title')}</h2>
+          <p className="login-sub">{t('login.subtitle')}</p>
 
-          <label className="field-label">Identifiant ou e-mail</label>
+          <label className="field-label">{t('login.idLabel')}</label>
           <div className="field">
             <Mail size={18} className="field-ico" />
             <input
@@ -70,7 +75,7 @@ export default function Login() {
             />
           </div>
 
-          <label className="field-label">Mot de passe</label>
+          <label className="field-label">{t('login.password')}</label>
           <div className="field">
             <Lock size={18} className="field-ico" />
             <input
@@ -88,20 +93,19 @@ export default function Login() {
           <div className="login-row">
             <label className="check">
               <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
-              <span>Rester connecté</span>
+              <span>{t('login.remember')}</span>
             </label>
-            <span className="link-faint">Mot de passe oublié ?</span>
+            <span className="link-faint">{t('login.forgot')}</span>
           </div>
 
           {error && <div className="login-error">{error}</div>}
 
           <button type="submit" className="btn btn-accent btn-block login-submit" disabled={busy}>
-            {busy ? 'Connexion…' : 'Se connecter'} <Arrow size={18} />
+            {busy ? t('login.connecting') : t('login.submit')} <Arrow size={18} />
           </button>
 
           <div className="login-note">
-            Pas encore de compte ? Les accès sont <strong>créés par l'administrateur Dioptase</strong>.
-            Contactez-le pour obtenir une invitation.
+            {noteParts[0]}<strong>{ADMIN_NAME}</strong>{noteParts[1]}
           </div>
         </form>
       </div>

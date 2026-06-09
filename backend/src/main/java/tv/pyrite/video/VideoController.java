@@ -53,12 +53,18 @@ public class VideoController {
         return currentUser.get().map(User::getId).orElse(null);
     }
 
-    /** Home feed: the featured video plus all recent videos (optionally filtered). */
+    /** Keeps only videos in the selected language (no filter when lang is blank). */
+    private boolean matchesLang(Video v, String lang) {
+        return lang == null || lang.isBlank() || lang.equalsIgnoreCase(v.getLanguage());
+    }
+
+    /** Home feed: the featured video plus all recent videos, filtered by language. */
     @GetMapping
     @Transactional(readOnly = true)
     public Dtos.FeedDto feed(@RequestParam(required = false) String category,
                              @RequestParam(required = false) String search,
-                             @RequestParam(required = false) Long uploaderId) {
+                             @RequestParam(required = false) Long uploaderId,
+                             @RequestParam(required = false) String lang) {
         List<Video> videos;
         if (search != null && !search.isBlank()) {
             videos = videoRepository
@@ -71,22 +77,34 @@ public class VideoController {
             videos = videoRepository.findAllByOrderByCreatedAtDesc();
         }
 
+        List<Dtos.VideoSummaryDto> list = videos.stream()
+                .filter(v -> matchesLang(v, lang))
+                .map(mapper::videoSummary)
+                .toList();
+
+        // The featured video only shows if it matches the selected language too.
         Dtos.VideoDetailDto featured = videoRepository.findFirstByFeaturedTrueOrderByCreatedAtDesc()
+                .filter(v -> matchesLang(v, lang))
                 .map(v -> mapper.videoDetail(v, currentUserId()))
                 .orElse(null);
 
-        return new Dtos.FeedDto(featured, videos.stream().map(mapper::videoSummary).toList());
+        return new Dtos.FeedDto(featured, list);
     }
 
-    /** Search-as-you-type suggestions (public). */
+    /** Search-as-you-type suggestions, filtered by language (public). */
     @GetMapping("/suggest")
     @Transactional(readOnly = true)
-    public List<Dtos.SuggestionDto> suggest(@RequestParam(required = false) String q) {
+    public List<Dtos.SuggestionDto> suggest(@RequestParam(required = false) String q,
+                                            @RequestParam(required = false) String lang) {
         if (q == null || q.isBlank()) {
             return List.of();
         }
-        return videoRepository.findTop8ByTitleContainingIgnoreCaseOrderByViewsDesc(q.trim())
-                .stream().map(mapper::suggestion).toList();
+        return videoRepository.findByTitleContainingIgnoreCaseOrderByViewsDesc(q.trim())
+                .stream()
+                .filter(v -> matchesLang(v, lang))
+                .limit(8)
+                .map(mapper::suggestion)
+                .toList();
     }
 
     /** Videos the current user has liked (literal path wins over /{id}). */
@@ -166,6 +184,7 @@ public class VideoController {
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "hashtags", required = false) String hashtags,
             @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "language", required = false, defaultValue = "fr") String language,
             @RequestParam(value = "durationSeconds", required = false, defaultValue = "0") long durationSeconds,
             @RequestParam(value = "featured", required = false, defaultValue = "false") boolean featured) {
 
@@ -179,6 +198,7 @@ public class VideoController {
         v.setDescription(description);
         v.setHashtags(hashtags);
         v.setCategory(category);
+        v.setLanguage(language);
         v.setDurationSeconds(durationSeconds);
         v.setUploader(admin);
         v.setVideoFile(storageService.store(videoFile, "video"));
@@ -240,6 +260,7 @@ public class VideoController {
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "hashtags", required = false) String hashtags,
             @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "language", required = false) String language,
             @RequestParam(value = "featured", required = false) Boolean featured,
             @RequestParam(value = "removeThumbnail", required = false, defaultValue = "false") boolean removeThumbnail) {
 
@@ -253,6 +274,7 @@ public class VideoController {
         if (description != null) v.setDescription(description);
         if (hashtags != null) v.setHashtags(hashtags);
         if (category != null) v.setCategory(category);
+        if (language != null && !language.isBlank()) v.setLanguage(language);
         if (featured != null) setFeaturedExclusive(v, featured);
 
         if (thumbnail != null && !thumbnail.isEmpty()) {

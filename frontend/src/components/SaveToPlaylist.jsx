@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { api } from '../api'
+import { useI18n } from '../i18n'
 import { Bookmark, BookmarkFill, Plus, Check } from './icons'
 
 // "Enregistrer" button + popover to pick which playlist(s) the video belongs to.
 export default function SaveToPlaylist({ videoId, inPlaylist, onInPlaylistChange }) {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [playlists, setPlaylists] = useState(null)
   const [creating, setCreating] = useState(false)
@@ -63,17 +65,17 @@ export default function SaveToPlaylist({ videoId, inPlaylist, onInPlaylistChange
   return (
     <div className="share-wrap" ref={ref}>
       <button className={`action pill-btn ${inPlaylist ? 'on' : ''}`} onClick={openMenu}>
-        {inPlaylist ? <BookmarkFill size={19} /> : <Bookmark size={19} />} {inPlaylist ? 'Enregistré' : 'Enregistrer'}
+        {inPlaylist ? <BookmarkFill size={19} /> : <Bookmark size={19} />} {inPlaylist ? t('watch.saved') : t('watch.save')}
       </button>
       {open && (
         <div className="save-pop">
-          <span className="share-pop-title">Enregistrer dans…</span>
+          <span className="share-pop-title">{t('save.into')}</span>
           {error && <div className="save-err">{error}</div>}
           {playlists === null ? (
-            <div className="save-loading">Chargement…</div>
+            <div className="save-loading">{t('common.loading')}</div>
           ) : (
             <div className="save-list">
-              {playlists.length === 0 && <div className="save-empty">Aucune playlist. Créez-en une ci-dessous.</div>}
+              {playlists.length === 0 && <div className="save-empty">{t('save.none')}</div>}
               {playlists.map((p) => (
                 <button key={p.id} className="save-item" onClick={() => toggle(p)}>
                   <span className={`save-check ${p.containsVideo ? 'on' : ''}`}>{p.containsVideo && <Check size={14} />}</span>
@@ -86,12 +88,12 @@ export default function SaveToPlaylist({ videoId, inPlaylist, onInPlaylistChange
 
           {creating ? (
             <form className="save-create" onSubmit={create}>
-              <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Nom de la playlist" autoFocus maxLength={120} />
+              <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder={t('save.namePh')} autoFocus maxLength={120} />
               <button type="submit" className="btn btn-accent"><Check size={16} /></button>
             </form>
           ) : (
             <button className="save-new" onClick={() => setCreating(true)}>
-              <Plus size={18} /> Créer une playlist
+              <Plus size={18} /> {t('save.new')}
             </button>
           )}
         </div>

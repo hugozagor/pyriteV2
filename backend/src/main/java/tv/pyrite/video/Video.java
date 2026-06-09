@@ -25,6 +25,10 @@ public class Video {
 
     private String category;
 
+    /** Spoken language of the video (ISO-ish code: fr, en, es, ru). */
+    @Column(length = 8)
+    private String language = "fr";
+
     @Column(nullable = false)
     private String videoFile;
 
@@ -69,6 +73,9 @@ public class Video {
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+
+    public String getLanguage() { return language; }
+    public void setLanguage(String language) { this.language = language; }
 
     public String getVideoFile() { return videoFile; }
     public void setVideoFile(String videoFile) { this.videoFile = videoFile; }

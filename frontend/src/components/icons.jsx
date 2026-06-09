@@ -48,5 +48,6 @@ export const Sort = (p) => (<svg {...s(p)} {...p}><line x1="4" y1="7" x2="20" y2
 export const Chevron = (p) => (<svg {...s(p)} {...p}><polyline points="6 9 12 15 18 9"/></svg>)
 export const Pencil = (p) => (<svg {...s(p)} {...p}><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>)
 export const Check = (p) => (<svg {...s(p)} {...p}><polyline points="20 6 9 17 4 12"/></svg>)
+export const Globe = (p) => (<svg {...s(p)} {...p}><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18z"/></svg>)
 export const LinkIco = (p) => (<svg {...s(p)} {...p}><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>)
 export const BookmarkFill = ({ size = 19, ...p }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>)

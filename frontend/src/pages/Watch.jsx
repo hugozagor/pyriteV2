@@ -2,15 +2,17 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { useAuth } from '../auth'
+import { useI18n, LANGUAGES } from '../i18n'
 import Avatar from '../components/Avatar'
 import Thumbnail from '../components/Thumbnail'
 import SaveToPlaylist from '../components/SaveToPlaylist'
-import { ThumbUp, ThumbDown, Share, Clock, Check, LinkIco, Verified, Shield, Sort, Trash, Pencil } from '../components/icons'
+import { ThumbUp, ThumbDown, Share, Clock, Check, LinkIco, Globe, Verified, Shield, Sort, Trash, Pencil } from '../components/icons'
 import { formatViews, formatCount, timeAgo } from '../format'
 
 export default function Watch() {
   const { id } = useParams()
   const { user, isAdmin } = useAuth()
+  const { t, tc, lang } = useI18n()
   const navigate = useNavigate()
   const [video, setVideo] = useState(null)
   const [related, setRelated] = useState([])
@@ -33,7 +35,7 @@ export default function Watch() {
     api.comments(id).then(setComments).catch(() => {})
     api.feed().then((feed) => setRelated((feed.videos || []).filter((v) => String(v.id) !== String(id)))).catch(() => {})
     window.scrollTo(0, 0)
-  }, [id])
+  }, [id, lang])
 
   useEffect(() => {
     const close = (e) => { if (shareRef.current && !shareRef.current.contains(e.target)) setShareOpen(false) }
@@ -45,13 +47,12 @@ export default function Watch() {
 
   const toggleLibrary = (kind, flag) => async () => {
     const active = video[flag]
-    // optimistic flip
     setVideo((v) => v && { ...v, [flag]: !active })
     try {
       if (active) await api.removeFromLibrary(kind, id)
       else await api.addToLibrary(kind, id)
     } catch (e) {
-      setVideo((v) => v && { ...v, [flag]: active }) // revert on failure
+      setVideo((v) => v && { ...v, [flag]: active })
       setError(e.message)
     }
   }
@@ -78,17 +79,10 @@ export default function Watch() {
   }
 
   const toggleLike = async () => {
-    try {
-      const updated = await api.toggleLike(id)
-      setVideo(updated)
-    } catch (e) { setError(e.message) }
+    try { setVideo(await api.toggleLike(id)) } catch (e) { setError(e.message) }
   }
-
   const toggleDislike = async () => {
-    try {
-      const updated = await api.toggleDislike(id)
-      setVideo(updated)
-    } catch (e) { setError(e.message) }
+    try { setVideo(await api.toggleDislike(id)) } catch (e) { setError(e.message) }
   }
 
   const submitComment = async (e) => {
@@ -107,7 +101,7 @@ export default function Watch() {
   }
 
   const removeVideo = async () => {
-    if (!confirm('Supprimer définitivement cette vidéo ?')) return
+    if (!confirm(t('watch.confirmDelete'))) return
     await api.deleteVideo(id)
     navigate('/')
   }
@@ -117,19 +111,14 @@ export default function Watch() {
 
   const hashtags = (video.hashtags || '')
     .split(/[\s,]+/).filter(Boolean)
-    .map((t) => (t.startsWith('#') ? t : `#${t}`))
+    .map((tag) => (tag.startsWith('#') ? tag : `#${tag}`))
+  const langLabel = (LANGUAGES.find((l) => l.code === video.language) || {}).label
 
   return (
     <div className="watch">
       <div className="watch-main">
         <div className="player">
-          <video
-            src={video.videoUrl}
-            poster={video.thumbnailUrl || undefined}
-            controls
-            onPlay={onPlay}
-            controlsList="nodownload"
-          />
+          <video src={video.videoUrl} poster={video.thumbnailUrl || undefined} controls onPlay={onPlay} controlsList="nodownload" />
         </div>
 
         <h1 className="watch-title">{video.title}</h1>
@@ -142,11 +131,11 @@ export default function Watch() {
                 {video.uploader?.displayName} <Verified size={15} className="badge" />
               </Link>
               <div className="watch-owner-sub">
-                {video.uploader?.role === 'ADMIN' ? 'Compte administrateur' : 'Membre'} · {formatCount(video.uploader?.videoCount)} vidéos
+                {video.uploader?.role === 'ADMIN' ? t('channel.adminAccount') : t('common.member')} · {t('watch.videos', { count: formatCount(video.uploader?.videoCount) })}
               </div>
             </div>
             {video.uploader?.role === 'ADMIN' && (
-              <span className="pill pill-admin"><Shield size={15} /> Administrateur</span>
+              <span className="pill pill-admin"><Shield size={15} /> {t('common.administrator')}</span>
             )}
           </div>
 
@@ -161,14 +150,14 @@ export default function Watch() {
               </button>
             </div>
             <div className="share-wrap" ref={shareRef}>
-              <button className="action pill-btn" onClick={onShareClick}><Share size={19} /> Partager</button>
+              <button className="action pill-btn" onClick={onShareClick}><Share size={19} /> {t('watch.share')}</button>
               {shareOpen && (
                 <div className="share-pop">
-                  <span className="share-pop-title">Partager cette vidéo</span>
+                  <span className="share-pop-title">{t('watch.shareTitle')}</span>
                   <div className="share-pop-row">
                     <input readOnly value={shareUrl} onFocus={(e) => e.target.select()} />
                     <button className="btn btn-accent" onClick={copyLink}>
-                      {copied ? <><Check size={16} /> Copié</> : <><LinkIco size={16} /> Copier</>}
+                      {copied ? <><Check size={16} /> {t('watch.copied')}</> : <><LinkIco size={16} /> {t('watch.copy')}</>}
                     </button>
                   </div>
                 </div>
@@ -180,10 +169,10 @@ export default function Watch() {
               onInPlaylistChange={(val) => setVideo((v) => v && { ...v, inPlaylist: val })}
             />
             <button className={`action pill-btn ${video.watchLaterByMe ? 'on' : ''}`} onClick={toggleWatchLater}>
-              {video.watchLaterByMe ? <Check size={19} /> : <Clock size={19} />} {video.watchLaterByMe ? 'Ajoutée' : 'À regarder'}
+              {video.watchLaterByMe ? <Check size={19} /> : <Clock size={19} />} {video.watchLaterByMe ? t('watch.added') : t('watch.watchLater')}
             </button>
             {isAdmin && (
-              <Link to={`/edit/${id}`} className="action pill-btn"><Pencil size={18} /> Modifier</Link>
+              <Link to={`/edit/${id}`} className="action pill-btn"><Pencil size={18} /> {t('watch.edit')}</Link>
             )}
             {isAdmin && (
               <button className="action pill-btn danger" onClick={removeVideo}><Trash size={18} /></button>
@@ -194,30 +183,28 @@ export default function Watch() {
         <div className={`watch-desc ${expanded ? 'open' : ''}`}>
           <div className="watch-desc-meta">
             {formatViews(video.views)} · {timeAgo(video.createdAt)}
-            {hashtags.length > 0 && <span className="tags"> · {hashtags.map((t) => <span key={t} className="tag">{t}</span>)}</span>}
+            {langLabel && <span className="lang-chip"><Globe size={13} /> {langLabel}</span>}
+            {video.category && <span className="tag"> · {tc(video.category)}</span>}
+            {hashtags.length > 0 && <span className="tags"> · {hashtags.map((tag) => <span key={tag} className="tag">{tag}</span>)}</span>}
           </div>
           {video.description && <p className="watch-desc-body">{video.description}</p>}
           {video.description && video.description.length > 180 && (
             <button className="watch-desc-toggle" onClick={() => setExpanded((e) => !e)}>
-              {expanded ? 'Réduire' : '…plus'}
+              {expanded ? t('watch.less') : t('watch.more')}
             </button>
           )}
         </div>
 
         <section className="comments">
           <div className="comments-head">
-            <h3>{formatCount(video.commentCount)} commentaires</h3>
-            <button className="comments-sort"><Sort size={18} /> Trier par</button>
+            <h3>{t('comments.count', { count: formatCount(video.commentCount) })}</h3>
+            <button className="comments-sort"><Sort size={18} /> {t('comments.sort')}</button>
           </div>
 
           <form className="comment-add" onSubmit={submitComment}>
             <Avatar user={user} size={40} />
-            <input
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder="Ajouter un commentaire…"
-            />
-            {draft.trim() && <button type="submit" className="btn btn-accent">Commenter</button>}
+            <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={t('comments.add')} />
+            {draft.trim() && <button type="submit" className="btn btn-accent">{t('comments.submit')}</button>}
           </form>
 
           <div className="comment-list">
@@ -233,27 +220,23 @@ export default function Watch() {
                   <div className="comment-actions">
                     <button className="comment-like"><ThumbUp size={16} /> {c.likes || ''}</button>
                     <button className="comment-dislike"><ThumbDown size={16} /></button>
-                    <button className="comment-reply">Répondre</button>
+                    <button className="comment-reply">{t('comments.reply')}</button>
                     {(isAdmin || c.author?.id === user?.id) && (
-                      <button className="comment-del" onClick={() => removeComment(c.id)}>Supprimer</button>
+                      <button className="comment-del" onClick={() => removeComment(c.id)}>{t('comments.delete')}</button>
                     )}
                   </div>
                 </div>
               </div>
             ))}
-            {comments.length === 0 && <div className="empty small">Soyez le premier à commenter.</div>}
+            {comments.length === 0 && <div className="empty small">{t('comments.first')}</div>}
           </div>
         </section>
       </div>
 
       <aside className="watch-side">
         <div className="autoplay-row">
-          <span>Lecture automatique</span>
-          <button
-            className={`toggle ${autoplay ? 'on' : ''}`}
-            onClick={() => setAutoplay((a) => !a)}
-            aria-label="Lecture automatique"
-          >
+          <span>{t('watch.autoplay')}</span>
+          <button className={`toggle ${autoplay ? 'on' : ''}`} onClick={() => setAutoplay((a) => !a)} aria-label={t('watch.autoplay')}>
             <span className="toggle-knob" />
           </button>
         </div>

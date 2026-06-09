@@ -1,13 +1,13 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getToken } from '../api'
+import { useI18n, LANGUAGES, CATEGORY_VALUES } from '../i18n'
 import { Plus, Download } from '../components/icons'
 import { formatDuration } from '../format'
 
-const CATEGORIES = ['Océan', 'Plongée', 'Lo-fi', 'Méditation', 'Pluie', 'Nature', 'Voile', 'Documentaires', 'Tech', 'Cuisine', 'Musique']
-
 export default function Upload() {
   const navigate = useNavigate()
+  const { t, tc, lang } = useI18n()
   const fileInput = useRef(null)
   const [file, setFile] = useState(null)
   const [thumb, setThumb] = useState(null)
@@ -17,6 +17,7 @@ export default function Upload() {
   const [description, setDescription] = useState('')
   const [hashtags, setHashtags] = useState('')
   const [category, setCategory] = useState('Océan')
+  const [language, setLanguage] = useState(lang)
   const [featured, setFeatured] = useState(false)
   const [progress, setProgress] = useState(0)
   const [busy, setBusy] = useState(false)
@@ -40,8 +41,8 @@ export default function Upload() {
 
   const submit = (e) => {
     e.preventDefault()
-    if (!file) { setError('Sélectionnez un fichier vidéo.'); return }
-    if (!title.trim()) { setError('Le titre est obligatoire.'); return }
+    if (!file) { setError(t('upload.errFile')); return }
+    if (!title.trim()) { setError(t('upload.errTitle')); return }
     setError('')
     setBusy(true)
     setProgress(0)
@@ -53,10 +54,10 @@ export default function Upload() {
     form.append('description', description)
     form.append('hashtags', hashtags)
     form.append('category', category)
+    form.append('language', language)
     form.append('durationSeconds', String(duration))
     form.append('featured', String(featured))
 
-    // XHR so we can report upload progress.
     const xhr = new XMLHttpRequest()
     xhr.open('POST', '/api/videos')
     xhr.setRequestHeader('Authorization', `Bearer ${getToken()}`)
@@ -66,22 +67,21 @@ export default function Upload() {
     xhr.onload = () => {
       setBusy(false)
       if (xhr.status >= 200 && xhr.status < 300) {
-        const created = JSON.parse(xhr.responseText)
-        navigate(`/watch/${created.id}`)
+        navigate(`/watch/${JSON.parse(xhr.responseText).id}`)
       } else {
-        try { setError(JSON.parse(xhr.responseText).message || 'Échec de l’envoi') }
-        catch { setError('Échec de l’envoi') }
+        try { setError(JSON.parse(xhr.responseText).message || t('upload.errSend')) }
+        catch { setError(t('upload.errSend')) }
       }
     }
-    xhr.onerror = () => { setBusy(false); setError('Erreur réseau') }
+    xhr.onerror = () => { setBusy(false); setError(t('upload.errSend')) }
     xhr.send(form)
   }
 
   return (
     <div className="page upload">
       <div className="upload-head">
-        <h1>Publier une vidéo</h1>
-        <p>En tant qu'administrateur, vous êtes le seul à pouvoir mettre en ligne du contenu sur Pyrite.</p>
+        <h1>{t('upload.title')}</h1>
+        <p>{t('upload.subtitle')}</p>
       </div>
 
       <form className="upload-form" onSubmit={submit}>
@@ -93,26 +93,20 @@ export default function Upload() {
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => { e.preventDefault(); pickVideo(e.dataTransfer.files[0]) }}
             >
-              <input
-                ref={fileInput}
-                type="file"
-                accept="video/*"
-                hidden
-                onChange={(e) => pickVideo(e.target.files[0])}
-              />
+              <input ref={fileInput} type="file" accept="video/*" hidden onChange={(e) => pickVideo(e.target.files[0])} />
               {file ? (
                 <div className="dropzone-file">
                   <div className="dropzone-badge"><Download size={22} /></div>
                   <div>
                     <strong>{file.name}</strong>
-                    <span>{(file.size / 1024 / 1024).toFixed(1)} Mo · {formatDuration(duration)}</span>
+                    <span>{(file.size / 1024 / 1024).toFixed(1)} MB · {formatDuration(duration)}</span>
                   </div>
                 </div>
               ) : (
                 <div className="dropzone-empty">
                   <span className="dropzone-icon"><Plus size={28} /></span>
-                  <strong>Glissez votre vidéo ici</strong>
-                  <span>ou cliquez pour parcourir · MP4, WebM, MOV</span>
+                  <strong>{t('upload.drop')}</strong>
+                  <span>{t('upload.dropHint')}</span>
                 </div>
               )}
             </div>
@@ -126,54 +120,55 @@ export default function Upload() {
           </div>
 
           <div className="upload-right">
-            <label className="field-label">Titre</label>
+            <label className="field-label">{t('upload.fieldTitle')}</label>
             <div className="field plain">
-              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre de la vidéo" maxLength={120} />
+              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('upload.titlePh')} maxLength={120} />
             </div>
 
-            <label className="field-label">Description</label>
-            <textarea
-              className="field-area"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Décrivez votre immersion…"
-              rows={4}
-            />
+            <label className="field-label">{t('upload.description')}</label>
+            <textarea className="field-area" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('upload.descriptionPh')} rows={4} />
 
-            <label className="field-label">Mots-clés (séparés par des espaces)</label>
+            <label className="field-label">{t('upload.tags')}</label>
             <div className="field plain">
               <input value={hashtags} onChange={(e) => setHashtags(e.target.value)} placeholder="apnée méditerranée freediving" />
             </div>
 
             <div className="upload-row2">
               <div className="upload-field">
-                <label className="field-label">Catégorie</label>
+                <label className="field-label">{t('upload.category')}</label>
                 <div className="field plain">
                   <select value={category} onChange={(e) => setCategory(e.target.value)}>
-                    {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+                    {CATEGORY_VALUES.map((c) => <option key={c} value={c}>{tc(c)}</option>)}
                   </select>
                 </div>
               </div>
               <div className="upload-field">
-                <label className="field-label">Miniature (optionnelle)</label>
-                <label className="thumb-pick">
-                  <input type="file" accept="image/*" hidden onChange={(e) => pickThumb(e.target.files[0])} />
-                  {thumbPreview ? <img src={thumbPreview} alt="" /> : <span>Choisir une image</span>}
-                </label>
+                <label className="field-label">{t('upload.language')}</label>
+                <div className="field plain">
+                  <select value={language} onChange={(e) => setLanguage(e.target.value)}>
+                    {LANGUAGES.map((l) => <option key={l.code} value={l.code}>{l.flag} {l.label}</option>)}
+                  </select>
+                </div>
               </div>
             </div>
 
+            <label className="field-label">{t('upload.thumbnail')}</label>
+            <label className="thumb-pick">
+              <input type="file" accept="image/*" hidden onChange={(e) => pickThumb(e.target.files[0])} />
+              {thumbPreview ? <img src={thumbPreview} alt="" /> : <span>{t('upload.chooseImage')}</span>}
+            </label>
+
             <label className="check big">
               <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} />
-              <span>Mettre à la une (affichée en tête de la chaîne)</span>
+              <span>{t('upload.featured')}</span>
             </label>
 
             {error && <div className="login-error">{error}</div>}
 
             <div className="upload-actions">
-              <button type="button" className="btn btn-ghost" onClick={() => navigate(-1)} disabled={busy}>Annuler</button>
+              <button type="button" className="btn btn-ghost" onClick={() => navigate(-1)} disabled={busy}>{t('common.cancel')}</button>
               <button type="submit" className="btn btn-accent" disabled={busy}>
-                {busy ? 'Envoi…' : 'Publier'}
+                {busy ? t('upload.sending') : t('upload.publish')}
               </button>
             </div>
           </div>

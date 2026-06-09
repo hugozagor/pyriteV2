@@ -8,6 +8,13 @@ export function setToken(token) {
   else localStorage.removeItem(TOKEN_KEY)
 }
 
+// Active UI language, kept in sync by the i18n provider; sent with listing calls
+// so the backend only returns videos in the selected language.
+let apiLang = localStorage.getItem('pyrite_lang') || 'fr'
+export function setApiLang(l) {
+  if (l) apiLang = l
+}
+
 async function request(path, { method = 'GET', body, headers = {}, isForm = false } = {}) {
   const opts = { method, headers: { ...headers } }
   const token = getToken()
@@ -45,10 +52,10 @@ export const api = {
     request('/auth/me/password', { method: 'PUT', body: { currentPassword, newPassword } }),
 
   // videos
-  suggest: (q) => request(`/videos/suggest?q=${encodeURIComponent(q)}`),
+  suggest: (q) => request(`/videos/suggest?q=${encodeURIComponent(q)}&lang=${apiLang}`),
   feed: (params = {}) => {
     const qs = new URLSearchParams(
-      Object.entries(params).filter(([, v]) => v != null && v !== '')
+      Object.entries({ ...params, lang: apiLang }).filter(([, v]) => v != null && v !== '')
     ).toString()
     return request(`/videos${qs ? `?${qs}` : ''}`)
   },

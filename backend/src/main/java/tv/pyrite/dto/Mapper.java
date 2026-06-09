@@ -70,6 +70,7 @@ public class Mapper {
         long commentCount = commentRepository.countByVideoId(v.getId());
         return new Dtos.VideoDetailDto(
                 v.getId(), v.getTitle(), v.getDescription(), v.getHashtags(), v.getCategory(),
+                v.getLanguage(),
                 v.getDurationSeconds(), v.getViews(), v.getLikedBy().size(), likedByMe,
                 v.getDislikedBy().size(), dislikedByMe,
                 savedByMe, watchLaterByMe, inPlaylist,

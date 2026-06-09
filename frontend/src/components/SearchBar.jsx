@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { api } from '../api'
+import { useI18n } from '../i18n'
 import { Search, Arrow } from './icons'
 import { gradientFor } from '../format'
 
 export default function SearchBar() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
   const [query, setQuery] = useState('')
@@ -77,8 +79,8 @@ export default function SearchBar() {
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={onKeyDown}
           onFocus={() => { if (suggestions.length) setOpen(true) }}
-          placeholder="Rechercher des vidéos…"
-          aria-label="Rechercher"
+          placeholder={t('nav.search')}
+          aria-label={t('nav.search')}
           autoComplete="off"
         />
         <button type="submit" className="searchbar-go" aria-label="Rechercher"><Arrow size={18} /></button>
