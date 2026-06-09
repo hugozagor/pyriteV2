@@ -7,9 +7,7 @@ import { Compass } from '../components/icons'
 
 // Canonical category values (match what is stored on videos); labels are translated.
 const CATEGORIES = [
-  'Tout', 'Pour vous', 'Musique', 'Lo-fi', 'Océan', 'Pluie', 'Méditation',
-  'Nature', 'Plongée', 'Voile', 'Documentaires', 'Tech', 'Cuisine',
-  'Récemment mis en ligne',
+  'Crystalcloud', 'Saphir', 'Récemment mis en ligne',
 ]
 const META = ['Tout', 'Pour vous', 'Récemment mis en ligne']
 

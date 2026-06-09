@@ -11,8 +11,7 @@ export const LANGUAGES = [
 
 // Canonical category values (stored on videos) -> translated labels live under cat.*
 export const CATEGORY_VALUES = [
-  'Océan', 'Plongée', 'Lo-fi', 'Méditation', 'Pluie', 'Nature',
-  'Voile', 'Documentaires', 'Tech', 'Cuisine', 'Musique',
+  'Crystalcloud', 'Saphir'
 ]
 
 const fr = {
