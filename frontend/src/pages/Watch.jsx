@@ -84,6 +84,13 @@ export default function Watch() {
     } catch (e) { setError(e.message) }
   }
 
+  const toggleDislike = async () => {
+    try {
+      const updated = await api.toggleDislike(id)
+      setVideo(updated)
+    } catch (e) { setError(e.message) }
+  }
+
   const submitComment = async (e) => {
     e.preventDefault()
     if (!draft.trim()) return
@@ -149,7 +156,9 @@ export default function Watch() {
                 <ThumbUp size={20} /> {formatCount(video.likes)}
               </button>
               <span className="action-sep" />
-              <button className="action" onClick={toggleLike}><ThumbDown size={20} /></button>
+              <button className={`action ${video.dislikedByMe ? 'on' : ''}`} onClick={toggleDislike}>
+                <ThumbDown size={20} />
+              </button>
             </div>
             <div className="share-wrap" ref={shareRef}>
               <button className="action pill-btn" onClick={onShareClick}><Share size={19} /> Partager</button>

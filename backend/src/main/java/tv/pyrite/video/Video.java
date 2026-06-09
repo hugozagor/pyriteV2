@@ -47,6 +47,11 @@ public class Video {
     @Column(name = "user_id")
     private Set<Long> likedBy = new HashSet<>();
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "video_dislikes", joinColumns = @JoinColumn(name = "video_id"))
+    @Column(name = "user_id")
+    private Set<Long> dislikedBy = new HashSet<>();
+
     @Column(nullable = false)
     private Instant createdAt = Instant.now();
 
@@ -88,6 +93,9 @@ public class Video {
 
     public Set<Long> getLikedBy() { return likedBy; }
     public void setLikedBy(Set<Long> likedBy) { this.likedBy = likedBy; }
+
+    public Set<Long> getDislikedBy() { return dislikedBy; }
+    public void setDislikedBy(Set<Long> dislikedBy) { this.dislikedBy = dislikedBy; }
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }

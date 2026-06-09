@@ -78,6 +78,8 @@ public final class Dtos {
             long views,
             long likes,
             boolean likedByMe,
+            long dislikes,
+            boolean dislikedByMe,
             boolean savedByMe,
             boolean watchLaterByMe,
             boolean inPlaylist,

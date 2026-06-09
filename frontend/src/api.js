@@ -56,6 +56,7 @@ export const api = {
   likedVideos: () => request('/videos/liked'),
   registerView: (id) => request(`/videos/${id}/view`, { method: 'POST' }),
   toggleLike: (id) => request(`/videos/${id}/like`, { method: 'POST' }),
+  toggleDislike: (id) => request(`/videos/${id}/dislike`, { method: 'POST' }),
   uploadVideo: (formData) => request('/videos', { method: 'POST', body: formData, isForm: true }),
   editVideo: (id, formData) => request(`/videos/${id}`, { method: 'PUT', body: formData, isForm: true }),
   updateVideo: (id, body) => request(`/videos/${id}`, { method: 'PATCH', body }),

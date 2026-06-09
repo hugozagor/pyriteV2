@@ -132,8 +132,25 @@ public class VideoController {
         User user = currentUser.require();
         Video v = videoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Vidéo introuvable"));
+        // Toggle like; liking clears any existing dislike (mutually exclusive).
         if (!v.getLikedBy().remove(user.getId())) {
             v.getLikedBy().add(user.getId());
+            v.getDislikedBy().remove(user.getId());
+        }
+        videoRepository.save(v);
+        return mapper.videoDetail(v, user.getId());
+    }
+
+    @PostMapping("/{id}/dislike")
+    @Transactional
+    public Dtos.VideoDetailDto toggleDislike(@PathVariable Long id) {
+        User user = currentUser.require();
+        Video v = videoRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Vidéo introuvable"));
+        // Toggle dislike; disliking clears any existing like (mutually exclusive).
+        if (!v.getDislikedBy().remove(user.getId())) {
+            v.getDislikedBy().add(user.getId());
+            v.getLikedBy().remove(user.getId());
         }
         videoRepository.save(v);
         return mapper.videoDetail(v, user.getId());

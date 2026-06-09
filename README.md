@@ -113,5 +113,34 @@ cd frontend && npm run build      # génère frontend/dist/
 cd backend  && ./mvnw package     # génère backend/target/pyrite-*.jar
 ```
 
-Les médias (`backend/media/`) sont stockés sur disque et ignorés par git.
-Les données applicatives sont persistées dans MariaDB (base `pyrite`).
+Les médias sont stockés sur disque (`backend/media/`, ignoré par git) **ou sur
+Amazon S3** selon `pyrite.storage.type`. Les données applicatives sont persistées
+dans MariaDB (base `pyrite`).
+
+### Stockage des vidéos sur Amazon S3 (optionnel)
+
+Par défaut (`pyrite.storage.type=local`) les vidéos sont sur le disque local. Pour
+les héberger sur S3 et les **lire directement depuis S3 via URLs présignées**
+(le flux ne transite plus par le serveur — idéal au-delà de quelques dizaines de
+spectateurs simultanés), passez en mode `s3` :
+
+```properties
+pyrite.storage.type=s3
+```
+
+et fournissez la configuration du bucket (idéalement via variables d'environnement) :
+
+| Propriété | Variable d'env | Exemple |
+|-----------|----------------|---------|
+| `pyrite.s3.bucket` | `PYRITE_S3_BUCKET` | `pyrite-media-prod` |
+| `pyrite.s3.region` | `PYRITE_S3_REGION` | `eu-west-3` |
+| `pyrite.s3.access-key` | `PYRITE_S3_ACCESS_KEY` | *(ou laisser vide)* |
+| `pyrite.s3.secret-key` | `PYRITE_S3_SECRET_KEY` | *(ou laisser vide)* |
+| `pyrite.s3.presign-minutes` | `PYRITE_S3_PRESIGN_MINUTES` | `360` (durée de validité des liens) |
+
+Si `access-key`/`secret-key` sont vides, la **chaîne de credentials AWS par défaut**
+est utilisée (variables d'env, `~/.aws/credentials`, ou rôle IAM en production).
+
+Le bucket peut rester **privé** : l'application génère une URL présignée à chaque
+lecture. Bucket conseillé en privé + (optionnel) **CloudFront** devant pour le cache/CDN.
+S3 gère nativement les requêtes HTTP Range, donc le *seek* dans la vidéo fonctionne.

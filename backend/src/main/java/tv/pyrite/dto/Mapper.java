@@ -8,6 +8,7 @@ import tv.pyrite.library.VideoListEntryRepository;
 import tv.pyrite.playlist.Playlist;
 import tv.pyrite.playlist.PlaylistItem;
 import tv.pyrite.playlist.PlaylistItemRepository;
+import tv.pyrite.storage.StorageService;
 import tv.pyrite.user.User;
 import tv.pyrite.video.Video;
 import tv.pyrite.video.VideoRepository;
@@ -19,17 +20,21 @@ public class Mapper {
     private final CommentRepository commentRepository;
     private final VideoListEntryRepository listRepository;
     private final PlaylistItemRepository playlistItemRepository;
+    private final StorageService storageService;
 
     public Mapper(VideoRepository videoRepository, CommentRepository commentRepository,
-                  VideoListEntryRepository listRepository, PlaylistItemRepository playlistItemRepository) {
+                  VideoListEntryRepository listRepository, PlaylistItemRepository playlistItemRepository,
+                  StorageService storageService) {
         this.videoRepository = videoRepository;
         this.commentRepository = commentRepository;
         this.listRepository = listRepository;
         this.playlistItemRepository = playlistItemRepository;
+        this.storageService = storageService;
     }
 
-    private String mediaUrl(String filename) {
-        return filename == null ? null : "/api/media/" + filename;
+    /** Builds the read URL via the active storage (local path or presigned S3 URL). */
+    private String mediaUrl(String key) {
+        return storageService.url(key);
     }
 
     public Dtos.UserDto user(User u) {
@@ -55,6 +60,7 @@ public class Mapper {
 
     public Dtos.VideoDetailDto videoDetail(Video v, Long currentUserId) {
         boolean likedByMe = currentUserId != null && v.getLikedBy().contains(currentUserId);
+        boolean dislikedByMe = currentUserId != null && v.getDislikedBy().contains(currentUserId);
         boolean savedByMe = currentUserId != null
                 && listRepository.existsByUserIdAndVideoIdAndKind(currentUserId, v.getId(), ListKind.SAVED);
         boolean watchLaterByMe = currentUserId != null
@@ -65,6 +71,7 @@ public class Mapper {
         return new Dtos.VideoDetailDto(
                 v.getId(), v.getTitle(), v.getDescription(), v.getHashtags(), v.getCategory(),
                 v.getDurationSeconds(), v.getViews(), v.getLikedBy().size(), likedByMe,
+                v.getDislikedBy().size(), dislikedByMe,
                 savedByMe, watchLaterByMe, inPlaylist,
                 v.isFeatured(), mediaUrl(v.getVideoFile()), mediaUrl(v.getThumbnailFile()),
                 commentCount, user(v.getUploader()), v.getCreatedAt());
