@@ -40,6 +40,12 @@ public class Mapper {
                 u.getRole().name(), u.getBio(), u.getAvatarColor(), videoCount, u.getCreatedAt());
     }
 
+    public Dtos.SuggestionDto suggestion(Video v) {
+        return new Dtos.SuggestionDto(
+                v.getId(), v.getTitle(), mediaUrl(v.getThumbnailFile()),
+                v.getUploader() != null ? v.getUploader().getDisplayName() : null);
+    }
+
     public Dtos.VideoSummaryDto videoSummary(Video v) {
         return new Dtos.VideoSummaryDto(
                 v.getId(), v.getTitle(), v.getCategory(), v.getDurationSeconds(),

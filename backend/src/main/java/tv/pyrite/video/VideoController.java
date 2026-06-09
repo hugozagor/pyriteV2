@@ -78,6 +78,17 @@ public class VideoController {
         return new Dtos.FeedDto(featured, videos.stream().map(mapper::videoSummary).toList());
     }
 
+    /** Search-as-you-type suggestions (public). */
+    @GetMapping("/suggest")
+    @Transactional(readOnly = true)
+    public List<Dtos.SuggestionDto> suggest(@RequestParam(required = false) String q) {
+        if (q == null || q.isBlank()) {
+            return List.of();
+        }
+        return videoRepository.findTop8ByTitleContainingIgnoreCaseOrderByViewsDesc(q.trim())
+                .stream().map(mapper::suggestion).toList();
+    }
+
     /** Videos the current user has liked (literal path wins over /{id}). */
     @GetMapping("/liked")
     @Transactional(readOnly = true)

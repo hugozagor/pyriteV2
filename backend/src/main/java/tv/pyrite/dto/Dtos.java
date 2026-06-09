@@ -45,6 +45,17 @@ public final class Dtos {
             String password,
             String role) {}
 
+    // Self-service profile editing (the signed-in user updates their own account).
+    public record UpdateProfileRequest(
+            @NotBlank String displayName,
+            @NotBlank @Email String email,
+            String bio,
+            String avatarColor) {}
+
+    public record ChangePasswordRequest(
+            @NotBlank String currentPassword,
+            @NotBlank @Size(min = 6) String newPassword) {}
+
     // ---- Videos ----
     public record VideoSummaryDto(
             Long id,
@@ -97,6 +108,13 @@ public final class Dtos {
     public record FeedDto(
             VideoDetailDto featured,
             List<VideoSummaryDto> videos) {}
+
+    /** Lightweight search-as-you-type suggestion. */
+    public record SuggestionDto(
+            Long id,
+            String title,
+            String thumbnailUrl,
+            String channel) {}
 
     // ---- Playlists ----
     public record PlaylistDto(

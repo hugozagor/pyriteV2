@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
+import { NavLink, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth'
 import Avatar from './Avatar'
+import SearchBar from './SearchBar'
 import {
-  Drop, Menu, Search, Arrow, Bell, Moon, Sun, Home, Compass,
+  Drop, Menu, Bell, Moon, Sun, Home, Compass,
   History, Clock, ThumbUp, Playlist, Settings, Logout, Plus, Users, Shield,
 } from './icons'
 
@@ -21,9 +22,7 @@ export default function Layout({ children }) {
   const [collapsed, setCollapsed] = useState(false)
   const [theme, toggleTheme] = useTheme()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [query, setQuery] = useState('')
   const navigate = useNavigate()
-  const location = useLocation()
   const menuRef = useRef(null)
 
   useEffect(() => {
@@ -31,16 +30,6 @@ export default function Layout({ children }) {
     document.addEventListener('mousedown', close)
     return () => document.removeEventListener('mousedown', close)
   }, [])
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    setQuery(params.get('q') || '')
-  }, [location.search])
-
-  const submitSearch = (e) => {
-    e.preventDefault()
-    navigate(query.trim() ? `/?q=${encodeURIComponent(query.trim())}` : '/')
-  }
 
   return (
     <div className={`app ${collapsed ? 'collapsed' : ''}`}>
@@ -55,15 +44,7 @@ export default function Layout({ children }) {
           </Link>
         </div>
 
-        <form className="searchbar" onSubmit={submitSearch}>
-          <Search size={18} className="searchbar-icon" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Rechercher des vidéos…"
-          />
-          <button type="submit" className="searchbar-go" aria-label="Rechercher"><Arrow size={18} /></button>
-        </form>
+        <SearchBar />
 
         <div className="topbar-right">
           {isAdmin && (

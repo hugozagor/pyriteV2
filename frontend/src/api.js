@@ -40,8 +40,12 @@ export const api = {
   // auth
   login: (login, password) => request('/auth/login', { method: 'POST', body: { login, password } }),
   me: () => request('/auth/me'),
+  updateProfile: (body) => request('/auth/me', { method: 'PATCH', body }),
+  changePassword: (currentPassword, newPassword) =>
+    request('/auth/me/password', { method: 'PUT', body: { currentPassword, newPassword } }),
 
   // videos
+  suggest: (q) => request(`/videos/suggest?q=${encodeURIComponent(q)}`),
   feed: (params = {}) => {
     const qs = new URLSearchParams(
       Object.entries(params).filter(([, v]) => v != null && v !== '')

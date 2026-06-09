@@ -18,4 +18,7 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
     /** Videos liked by the given user, most recently created first. */
     @Query("select v from Video v where :userId member of v.likedBy order by v.createdAt desc")
     List<Video> findLikedByUser(@Param("userId") Long userId);
+
+    /** Top suggestions for autocomplete: title match, most-viewed first. */
+    List<Video> findTop8ByTitleContainingIgnoreCaseOrderByViewsDesc(String title);
 }
