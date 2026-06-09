@@ -49,6 +49,7 @@ export const api = {
     return request(`/videos${qs ? `?${qs}` : ''}`)
   },
   video: (id) => request(`/videos/${id}`),
+  likedVideos: () => request('/videos/liked'),
   registerView: (id) => request(`/videos/${id}/view`, { method: 'POST' }),
   toggleLike: (id) => request(`/videos/${id}/like`, { method: 'POST' }),
   uploadVideo: (formData) => request('/videos', { method: 'POST', body: formData, isForm: true }),

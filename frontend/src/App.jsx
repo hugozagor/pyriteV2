@@ -11,9 +11,9 @@ import UsersAdmin from './pages/UsersAdmin'
 import Settings from './pages/Settings'
 import WatchLater from './pages/WatchLater'
 import History from './pages/History'
+import Liked from './pages/Liked'
 import Playlists from './pages/Playlists'
 import PlaylistDetail from './pages/PlaylistDetail'
-import ComingSoon from './pages/ComingSoon'
 
 function Protected({ children, adminOnly = false }) {
   const { user, loading, isAdmin } = useAuth()
@@ -43,7 +43,7 @@ export default function App() {
       <Route path="/settings" element={<Shell><Settings /></Shell>} />
       <Route path="/history" element={<Shell><History /></Shell>} />
       <Route path="/watch-later" element={<Shell><WatchLater /></Shell>} />
-      <Route path="/liked" element={<Shell><ComingSoon title="Vidéos aimées" subtitle="Retrouvez ici les vidéos que vous avez aimées." /></Shell>} />
+      <Route path="/liked" element={<Shell><Liked /></Shell>} />
       <Route path="/playlists" element={<Shell><Playlists /></Shell>} />
       <Route path="/playlist/:id" element={<Shell><PlaylistDetail /></Shell>} />
 

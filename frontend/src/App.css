@@ -322,6 +322,8 @@
 }
 .removable:hover .remove-btn { opacity: 1; }
 .remove-btn:hover { background: var(--danger); }
+.remove-btn.liked { color: var(--accent-strong); }
+.remove-btn.liked:hover { background: var(--accent-deep); color: #fff; }
 
 .watch-desc {
   margin: 16px 0; padding: 14px 16px; background: var(--surface); border-radius: var(--radius);

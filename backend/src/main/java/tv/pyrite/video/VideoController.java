@@ -78,6 +78,16 @@ public class VideoController {
         return new Dtos.FeedDto(featured, videos.stream().map(mapper::videoSummary).toList());
     }
 
+    /** Videos the current user has liked (literal path wins over /{id}). */
+    @GetMapping("/liked")
+    @Transactional(readOnly = true)
+    public List<Dtos.VideoSummaryDto> liked() {
+        return currentUser.get()
+                .map(user -> videoRepository.findLikedByUser(user.getId())
+                        .stream().map(mapper::videoSummary).toList())
+                .orElseGet(List::of);
+    }
+
     @GetMapping("/{id}")
     @Transactional(readOnly = true)
     public Dtos.VideoDetailDto get(@PathVariable Long id) {
